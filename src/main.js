@@ -1,52 +1,37 @@
 import './style.css'
+
 import * as THREE from 'three'
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
-// Scene
-const scene = new THREE.Scene()
 
-// Camera
-const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000)
+import { scene } from './core/scene'
+import { camera } from './core/camera'
+import { renderer } from './core/renderer'
+import { controls } from './core/controls'
+import { createLights } from './utils/lights'
 
-camera.position.z = 5
+createLights(scene)
 
-// Renderer
-const renderer = new THREE.WebGLRenderer({
-  antialias: true,
-})
-
-renderer.setSize(window.innerWidth, window.innerHeight)
-renderer.setPixelRatio(window.devicePixelRatio)
-document.body.appendChild(renderer.domElement)
-
-// Cube
-const geometry = new THREE.BoxGeometry()
-
-const material = new THREE.MeshNormalMaterial()
-
-const cube = new THREE.Mesh(geometry, material)
+// Temporary cube
+const cube = new THREE.Mesh(new THREE.BoxGeometry(), new THREE.MeshNormalMaterial())
 
 scene.add(cube)
-
-// Animation Loop
 
 function animate() {
   requestAnimationFrame(animate)
 
-  const time = Date.now() * 0.001
+  cube.rotation.x += 0.01
+  cube.rotation.y += 0.01
 
-  cube.rotation.x = time
-  cube.rotation.y = time
-
-  cube.position.y = Math.sin(time) * 0.5
+  controls.update()
 
   renderer.render(scene, camera)
 }
 
+animate()
+
 window.addEventListener('resize', () => {
   camera.aspect = window.innerWidth / window.innerHeight
+
   camera.updateProjectionMatrix()
 
   renderer.setSize(window.innerWidth, window.innerHeight)
 })
-
-animate()
