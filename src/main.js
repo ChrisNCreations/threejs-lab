@@ -13,13 +13,30 @@ import { Planet } from './planets/Planet'
 import { addRings } from './planets/Saturn'
 import { Moon } from './planets/Moon.js'
 import { createOrbit } from './utils/orbits.js'
+import { createStars } from './utils/stars'
+import { createGalaxy } from './utils/galaxy'
+import { createBloom } from './postprocessing/bloom'
+import { createAsteroidBelt } from './utils/asteroids'
 
 createLights(scene)
+
+//composer
+const composer = createBloom(renderer, scene, camera)
 
 //Sun
 const sunTexture = textureLoader.load('/textures/sun.jpg')
 const sun = new Sun(sunTexture)
 scene.add(sun.mesh)
+
+//galaxy
+const galaxy = createGalaxy()
+
+scene.add(galaxy)
+
+//stars
+const stars = createStars()
+
+scene.add(stars)
 
 //Planets
 const mercuryTexture = textureLoader.load('/textures/mercury.jpg')
@@ -119,6 +136,9 @@ const neptune = new Planet({
   orbitSpeed: 0.15,
 })
 
+const asteroidBelt = createAsteroidBelt()
+
+scene.add(asteroidBelt)
 scene.add(mercury.orbit)
 scene.add(venus.orbit)
 scene.add(earth.orbit)
@@ -147,6 +167,10 @@ function animate() {
 
   const delta = clock.getDelta()
 
+  stars.rotation.y += delta * 0.01
+  galaxy.rotation.y += delta * 0.01
+  asteroidBelt.rotation.y += delta * 0.03
+
   sun.update(delta)
   mercury.update(delta)
   venus.update(delta)
@@ -160,7 +184,7 @@ function animate() {
 
   controls.update()
 
-  renderer.render(scene, camera)
+  composer.render()
 }
 
 animate()
@@ -170,5 +194,5 @@ window.addEventListener('resize', () => {
 
   camera.updateProjectionMatrix()
 
-  renderer.setSize(window.innerWidth, window.innerHeight)
+  composer.setSize(window.innerWidth, window.innerHeight)
 })
